@@ -11,14 +11,14 @@ fix_permission = {
     "bin/e2fsck": "u:object_r:fsck_exec:s0",
     "bin/logcat": "u:object_r:logcat_exec:s0",
     "system/bin": "u:object_r:system_file:s0",
-    "/system/bin/init":	"u:object_r:init_exec:s0",
-    r"/lost\+found": "u:object_r:rootfs:s0"
+    "/system/bin/init": "u:object_r:init_exec:s0",
+    r"/lost\+found": "u:object_r:rootfs:s0",
 }
 
 
 def scan_context(file) -> dict:  # 读取context文件返回一个字典
     context = {}
-    with open(file, "r", encoding='utf-8') as file_:
+    with open(file, "r", encoding="utf-8") as file_:
         for i in file_.readlines():
             filepath, *other = i.strip().split()
             context[filepath] = other
@@ -30,18 +30,18 @@ def scan_context(file) -> dict:  # 读取context文件返回一个字典
 
 def scan_dir(folder) -> list:  # 读取解包的目录，返回一个字典
     part_name = os.path.basename(folder)
-    allfiles = ['/', '/lost+found', f'/{part_name}/lost+found', f'/{part_name}', f'/{part_name}/']
+    allfiles = ["/", "/lost+found", f"/{part_name}/lost+found", f"/{part_name}", f"/{part_name}/"]
     for root, dirs, files in os.walk(folder, topdown=True):
         for dir_ in dirs:
-            yield os.path.join(root, dir_).replace(folder, '/' + part_name).replace('\\', '/')
+            yield os.path.join(root, dir_).replace(folder, "/" + part_name).replace("\\", "/")
         for file in files:
-            yield os.path.join(root, file).replace(folder, '/' + part_name).replace('\\', '/')
+            yield os.path.join(root, file).replace(folder, "/" + part_name).replace("\\", "/")
         for rv in allfiles:
             yield rv
 
 
 def str_to_selinux(string: str):
-    return escape(string).replace('\\-', '-')
+    return escape(string).replace("\\-", "-")
 
 
 def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
@@ -51,16 +51,16 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
     add_new = 0
     print("ContextPatcher: Load origin %d" % (len(fs_file.keys())) + " entries")
     # 定义默认SeLinux标签
-    permission_d = [f'u:object_r:{os.path.basename(dir_path)}_file:s0']
+    permission_d = [f"u:object_r:{os.path.basename(dir_path)}_file:s0"]
     for i in scan_dir(os.path.abspath(dir_path)):
         # 把不可打印字符替换为*
         if not i.isprintable():
-            tmp = ''
+            tmp = ""
             for c in i:
-                tmp += c if c.isprintable() else '*'
+                tmp += c if c.isprintable() else "*"
             i = tmp
-        if ' ' in i:
-            i = i.replace(' ', '*')
+        if " " in i:
+            i = i.replace(" ", "*")
         i = str_to_selinux(i)
         if fs_file.get(i):
             # 如果存在直接使用默认的
@@ -85,7 +85,7 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
                         else:
                             permission = permission_d
             if " " in permission:
-                permission = permission.replace(' ', '')
+                permission = permission.replace(" ", "")
             print(f"ADD [{i} {permission}], May Not Right")
             add_new += 1
             r_new_fs[i] = permission
@@ -95,6 +95,6 @@ def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
 
 def main(dir_path, fs_config) -> None:
     new_fs, add_new = context_patch(scan_context(os.path.abspath(fs_config)), dir_path)
-    with open(fs_config, "w+", encoding='utf-8', newline='\n') as f:
+    with open(fs_config, "w+", encoding="utf-8", newline="\n") as f:
         f.writelines([i + " " + " ".join(new_fs[i]) + "\n" for i in sorted(new_fs.keys())])
-    print('ContextPatcher: Add %d' % add_new + " entries")
+    print("ContextPatcher: Add %d" % add_new + " entries")

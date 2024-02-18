@@ -4,3 +4,4 @@ pycryptodome
 Requests
 rich
 lxml
+ruff
