@@ -34,11 +34,11 @@ class ext4_struct(ctypes.LittleEndianStructure):
     def __getattr__(self, name):
         try:
             # Combining *_lo and *_hi fields
-            lo_field = ctypes.LittleEndianStructure.__getattribute__(type(self), name + "_lo")
+            lo_field = ctypes.LittleEndianStructure.__getattribute__(type(self), name + '_lo')
             size = lo_field.size
 
             lo = lo_field.__get__(self)
-            hi = ctypes.LittleEndianStructure.__getattribute__(self, name + "_hi")
+            hi = ctypes.LittleEndianStructure.__getattribute__(self, name + '_hi')
 
             return (hi << (8 * size)) | lo
         except AttributeError:
@@ -47,21 +47,21 @@ class ext4_struct(ctypes.LittleEndianStructure):
     def __setattr__(self, name, value):
         try:
             # Combining *_lo and *_hi fields
-            lo_field = ctypes.LittleEndianStructure.__getattribute__(type(self), name + "_lo")
+            lo_field = ctypes.LittleEndianStructure.__getattribute__(type(self), name + '_lo')
             size = lo_field.size
 
             lo_field.__set__(self, value & ((1 << (8 * size)) - 1))
-            ctypes.LittleEndianStructure.__setattr__(self, name + "_hi", value >> (8 * size))
+            ctypes.LittleEndianStructure.__setattr__(self, name + '_hi', value >> (8 * size))
         except AttributeError:
             ctypes.LittleEndianStructure.__setattr__(self, name, value)
 
 
 class ext4_dir_entry_2(ext4_struct):
     _fields_ = [
-        ("inode", ctypes.c_uint),  # 0x0
-        ("rec_len", ctypes.c_ushort),  # 0x4
-        ("name_len", ctypes.c_ubyte),  # 0x6
-        ("file_type", ctypes.c_ubyte),  # 0x7
+        ('inode', ctypes.c_uint),  # 0x0
+        ('rec_len', ctypes.c_ushort),  # 0x4
+        ('name_len', ctypes.c_ubyte),  # 0x6
+        ('file_type', ctypes.c_ubyte),  # 0x7
         # Variable length field "name" missing at 0x8
     ]
 
@@ -74,58 +74,58 @@ class ext4_dir_entry_2(ext4_struct):
 
 class ext4_extent(ext4_struct):
     _fields_ = [
-        ("ee_block", ctypes.c_uint),  # 0x0000
-        ("ee_len", ctypes.c_ushort),  # 0x0004
-        ("ee_start_hi", ctypes.c_ushort),  # 0x0006
-        ("ee_start_lo", ctypes.c_uint),  # 0x0008
+        ('ee_block', ctypes.c_uint),  # 0x0000
+        ('ee_len', ctypes.c_ushort),  # 0x0004
+        ('ee_start_hi', ctypes.c_ushort),  # 0x0006
+        ('ee_start_lo', ctypes.c_uint),  # 0x0008
     ]
 
 
 class ext4_extent_header(ext4_struct):
     _fields_ = [
-        ("eh_magic", ctypes.c_ushort),  # 0x0000, Must be 0xF30A
-        ("eh_entries", ctypes.c_ushort),  # 0x0002
-        ("eh_max", ctypes.c_ushort),  # 0x0004
-        ("eh_depth", ctypes.c_ushort),  # 0x0006
-        ("eh_generation", ctypes.c_uint),  # 0x0008
+        ('eh_magic', ctypes.c_ushort),  # 0x0000, Must be 0xF30A
+        ('eh_entries', ctypes.c_ushort),  # 0x0002
+        ('eh_max', ctypes.c_ushort),  # 0x0004
+        ('eh_depth', ctypes.c_ushort),  # 0x0006
+        ('eh_generation', ctypes.c_uint),  # 0x0008
     ]
 
 
 class ext4_extent_idx(ext4_struct):
     _fields_ = [
-        ("ei_block", ctypes.c_uint),  # 0x0000
-        ("ei_leaf_lo", ctypes.c_uint),  # 0x0004
-        ("ei_leaf_hi", ctypes.c_ushort),  # 0x0008
-        ("ei_unused", ctypes.c_ushort),  # 0x000A
+        ('ei_block', ctypes.c_uint),  # 0x0000
+        ('ei_leaf_lo', ctypes.c_uint),  # 0x0004
+        ('ei_leaf_hi', ctypes.c_ushort),  # 0x0008
+        ('ei_unused', ctypes.c_ushort),  # 0x000A
     ]
 
 
 class ext4_group_descriptor(ext4_struct):
     _fields_ = [
-        ("bg_block_bitmap_lo", ctypes.c_uint),  # 0x0000
-        ("bg_inode_bitmap_lo", ctypes.c_uint),  # 0x0004
-        ("bg_inode_table_lo", ctypes.c_uint),  # 0x0008
-        ("bg_free_blocks_count_lo", ctypes.c_ushort),  # 0x000C
-        ("bg_free_inodes_count_lo", ctypes.c_ushort),  # 0x000E
-        ("bg_used_dirs_count_lo", ctypes.c_ushort),  # 0x0010
-        ("bg_flags", ctypes.c_ushort),  # 0x0012
-        ("bg_exclude_bitmap_lo", ctypes.c_uint),  # 0x0014
-        ("bg_block_bitmap_csum_lo", ctypes.c_ushort),  # 0x0018
-        ("bg_inode_bitmap_csum_lo", ctypes.c_ushort),  # 0x001A
-        ("bg_itable_unused_lo", ctypes.c_ushort),  # 0x001C
-        ("bg_checksum", ctypes.c_ushort),  # 0x001E
+        ('bg_block_bitmap_lo', ctypes.c_uint),  # 0x0000
+        ('bg_inode_bitmap_lo', ctypes.c_uint),  # 0x0004
+        ('bg_inode_table_lo', ctypes.c_uint),  # 0x0008
+        ('bg_free_blocks_count_lo', ctypes.c_ushort),  # 0x000C
+        ('bg_free_inodes_count_lo', ctypes.c_ushort),  # 0x000E
+        ('bg_used_dirs_count_lo', ctypes.c_ushort),  # 0x0010
+        ('bg_flags', ctypes.c_ushort),  # 0x0012
+        ('bg_exclude_bitmap_lo', ctypes.c_uint),  # 0x0014
+        ('bg_block_bitmap_csum_lo', ctypes.c_ushort),  # 0x0018
+        ('bg_inode_bitmap_csum_lo', ctypes.c_ushort),  # 0x001A
+        ('bg_itable_unused_lo', ctypes.c_ushort),  # 0x001C
+        ('bg_checksum', ctypes.c_ushort),  # 0x001E
         # 64-bit fields
-        ("bg_block_bitmap_hi", ctypes.c_uint),  # 0x0020
-        ("bg_inode_bitmap_hi", ctypes.c_uint),  # 0x0024
-        ("bg_inode_table_hi", ctypes.c_uint),  # 0x0028
-        ("bg_free_blocks_count_hi", ctypes.c_ushort),  # 0x002C
-        ("bg_free_inodes_count_hi", ctypes.c_ushort),  # 0x002E
-        ("bg_used_dirs_count_hi", ctypes.c_ushort),  # 0x0030
-        ("bg_itable_unused_hi", ctypes.c_ushort),  # 0x0032
-        ("bg_exclude_bitmap_hi", ctypes.c_uint),  # 0x0034
-        ("bg_block_bitmap_csum_hi", ctypes.c_ushort),  # 0x0038
-        ("bg_inode_bitmap_csum_hi", ctypes.c_ushort),  # 0x003A
-        ("bg_reserved", ctypes.c_uint),  # 0x003C
+        ('bg_block_bitmap_hi', ctypes.c_uint),  # 0x0020
+        ('bg_inode_bitmap_hi', ctypes.c_uint),  # 0x0024
+        ('bg_inode_table_hi', ctypes.c_uint),  # 0x0028
+        ('bg_free_blocks_count_hi', ctypes.c_ushort),  # 0x002C
+        ('bg_free_inodes_count_hi', ctypes.c_ushort),  # 0x002E
+        ('bg_used_dirs_count_hi', ctypes.c_ushort),  # 0x0030
+        ('bg_itable_unused_hi', ctypes.c_ushort),  # 0x0032
+        ('bg_exclude_bitmap_hi', ctypes.c_uint),  # 0x0034
+        ('bg_block_bitmap_csum_hi', ctypes.c_ushort),  # 0x0038
+        ('bg_inode_bitmap_csum_hi', ctypes.c_ushort),  # 0x003A
+        ('bg_reserved', ctypes.c_uint),  # 0x003C
     ]
 
     @staticmethod
@@ -179,38 +179,38 @@ class ext4_inode(ext4_struct):
     EXT4_INLINE_DATA_FL = 0x10000000  # Has inline data
 
     _fields_ = [
-        ("i_mode", ctypes.c_ushort),  # 0x0000
-        ("i_uid_lo", ctypes.c_ushort),  # 0x0002, Originally named i_uid
-        ("i_size_lo", ctypes.c_uint),  # 0x0004
-        ("i_atime", ctypes.c_uint),  # 0x0008
-        ("i_ctime", ctypes.c_uint),  # 0x000C
-        ("i_mtime", ctypes.c_uint),  # 0x0010
-        ("i_dtime", ctypes.c_uint),  # 0x0014
-        ("i_gid_lo", ctypes.c_ushort),  # 0x0018, Originally named i_gid
-        ("i_links_count", ctypes.c_ushort),  # 0x001A
-        ("i_blocks_lo", ctypes.c_uint),  # 0x001C
-        ("i_flags", ctypes.c_uint),  # 0x0020
-        ("osd1", ctypes.c_uint),  # 0x0024
-        ("i_block", ctypes.c_uint * 15),  # 0x0028
-        ("i_generation", ctypes.c_uint),  # 0x0064
-        ("i_file_acl_lo", ctypes.c_uint),  # 0x0068
-        ("i_size_hi", ctypes.c_uint),  # 0x006C, Originally named i_size_high
-        ("i_obso_faddr", ctypes.c_uint),  # 0x0070
-        ("i_osd2_blocks_high", ctypes.c_ushort),  # 0x0074, Originally named i_osd2.linux2.l_i_blocks_high
-        ("i_file_acl_hi", ctypes.c_ushort),  # 0x0076, Originally named i_osd2.linux2.l_i_file_acl_high
-        ("i_uid_hi", ctypes.c_ushort),  # 0x0078, Originally named i_osd2.linux2.l_i_uid_high
-        ("i_gid_hi", ctypes.c_ushort),  # 0x007A, Originally named i_osd2.linux2.l_i_gid_high
-        ("i_osd2_checksum_lo", ctypes.c_ushort),  # 0x007C, Originally named i_osd2.linux2.l_i_checksum_lo
-        ("i_osd2_reserved", ctypes.c_ushort),  # 0x007E, Originally named i_osd2.linux2.l_i_reserved
-        ("i_extra_isize", ctypes.c_ushort),  # 0x0080
-        ("i_checksum_hi", ctypes.c_ushort),  # 0x0082
-        ("i_ctime_extra", ctypes.c_uint),  # 0x0084
-        ("i_mtime_extra", ctypes.c_uint),  # 0x0088
-        ("i_atime_extra", ctypes.c_uint),  # 0x008C
-        ("i_crtime", ctypes.c_uint),  # 0x0090
-        ("i_crtime_extra", ctypes.c_uint),  # 0x0094
-        ("i_version_hi", ctypes.c_uint),  # 0x0098
-        ("i_projid", ctypes.c_uint),  # 0x009C
+        ('i_mode', ctypes.c_ushort),  # 0x0000
+        ('i_uid_lo', ctypes.c_ushort),  # 0x0002, Originally named i_uid
+        ('i_size_lo', ctypes.c_uint),  # 0x0004
+        ('i_atime', ctypes.c_uint),  # 0x0008
+        ('i_ctime', ctypes.c_uint),  # 0x000C
+        ('i_mtime', ctypes.c_uint),  # 0x0010
+        ('i_dtime', ctypes.c_uint),  # 0x0014
+        ('i_gid_lo', ctypes.c_ushort),  # 0x0018, Originally named i_gid
+        ('i_links_count', ctypes.c_ushort),  # 0x001A
+        ('i_blocks_lo', ctypes.c_uint),  # 0x001C
+        ('i_flags', ctypes.c_uint),  # 0x0020
+        ('osd1', ctypes.c_uint),  # 0x0024
+        ('i_block', ctypes.c_uint * 15),  # 0x0028
+        ('i_generation', ctypes.c_uint),  # 0x0064
+        ('i_file_acl_lo', ctypes.c_uint),  # 0x0068
+        ('i_size_hi', ctypes.c_uint),  # 0x006C, Originally named i_size_high
+        ('i_obso_faddr', ctypes.c_uint),  # 0x0070
+        ('i_osd2_blocks_high', ctypes.c_ushort),  # 0x0074, Originally named i_osd2.linux2.l_i_blocks_high
+        ('i_file_acl_hi', ctypes.c_ushort),  # 0x0076, Originally named i_osd2.linux2.l_i_file_acl_high
+        ('i_uid_hi', ctypes.c_ushort),  # 0x0078, Originally named i_osd2.linux2.l_i_uid_high
+        ('i_gid_hi', ctypes.c_ushort),  # 0x007A, Originally named i_osd2.linux2.l_i_gid_high
+        ('i_osd2_checksum_lo', ctypes.c_ushort),  # 0x007C, Originally named i_osd2.linux2.l_i_checksum_lo
+        ('i_osd2_reserved', ctypes.c_ushort),  # 0x007E, Originally named i_osd2.linux2.l_i_reserved
+        ('i_extra_isize', ctypes.c_ushort),  # 0x0080
+        ('i_checksum_hi', ctypes.c_ushort),  # 0x0082
+        ('i_ctime_extra', ctypes.c_uint),  # 0x0084
+        ('i_mtime_extra', ctypes.c_uint),  # 0x0088
+        ('i_atime_extra', ctypes.c_uint),  # 0x008C
+        ('i_crtime', ctypes.c_uint),  # 0x0090
+        ('i_crtime_extra', ctypes.c_uint),  # 0x0094
+        ('i_version_hi', ctypes.c_uint),  # 0x0098
+        ('i_projid', ctypes.c_uint),  # 0x009C
     ]
 
 
@@ -224,98 +224,98 @@ class ext4_superblock(ext4_struct):
 
     INCOMPAT_FILETYPE = 0x2  # Directory entries record file type (instead of inode flags)
     _fields_ = [
-        ("s_inodes_count", ctypes.c_uint),  # 0x0000
-        ("s_blocks_count_lo", ctypes.c_uint),  # 0x0004
-        ("s_r_blocks_count_lo", ctypes.c_uint),  # 0x0008
-        ("s_free_blocks_count_lo", ctypes.c_uint),  # 0x000C
-        ("s_free_inodes_count", ctypes.c_uint),  # 0x0010
-        ("s_first_data_block", ctypes.c_uint),  # 0x0014
-        ("s_log_block_size", ctypes.c_uint),  # 0x0018
-        ("s_log_cluster_size", ctypes.c_uint),  # 0x001C
-        ("s_blocks_per_group", ctypes.c_uint),  # 0x0020
-        ("s_clusters_per_group", ctypes.c_uint),  # 0x0024
-        ("s_inodes_per_group", ctypes.c_uint),  # 0x0028
-        ("s_mtime", ctypes.c_uint),  # 0x002C
-        ("s_wtime", ctypes.c_uint),  # 0x0030
-        ("s_mnt_count", ctypes.c_ushort),  # 0x0034
-        ("s_max_mnt_count", ctypes.c_ushort),  # 0x0036
-        ("s_magic", ctypes.c_ushort),  # 0x0038, Must be 0xEF53
-        ("s_state", ctypes.c_ushort),  # 0x003A
-        ("s_errors", ctypes.c_ushort),  # 0x003C
-        ("s_minor_rev_level", ctypes.c_ushort),  # 0x003E
-        ("s_lastcheck", ctypes.c_uint),  # 0x0040
-        ("s_checkinterval", ctypes.c_uint),  # 0x0044
-        ("s_creator_os", ctypes.c_uint),  # 0x0048
-        ("s_rev_level", ctypes.c_uint),  # 0x004C
-        ("s_def_resuid", ctypes.c_ushort),  # 0x0050
-        ("s_def_resgid", ctypes.c_ushort),  # 0x0052
-        ("s_first_ino", ctypes.c_uint),  # 0x0054
-        ("s_inode_size", ctypes.c_ushort),  # 0x0058
-        ("s_block_group_nr", ctypes.c_ushort),  # 0x005A
-        ("s_feature_compat", ctypes.c_uint),  # 0x005C
-        ("s_feature_incompat", ctypes.c_uint),  # 0x0060
-        ("s_feature_ro_compat", ctypes.c_uint),  # 0x0064
-        ("s_uuid", ctypes.c_ubyte * 16),  # 0x0068
-        ("s_volume_name", ctypes.c_char * 16),  # 0x0078
-        ("s_last_mounted", ctypes.c_char * 64),  # 0x0088
-        ("s_algorithm_usage_bitmap", ctypes.c_uint),  # 0x00C8
-        ("s_prealloc_blocks", ctypes.c_ubyte),  # 0x00CC
-        ("s_prealloc_dir_blocks", ctypes.c_ubyte),  # 0x00CD
-        ("s_reserved_gdt_blocks", ctypes.c_ushort),  # 0x00CE
-        ("s_journal_uuid", ctypes.c_ubyte * 16),  # 0x00D0
-        ("s_journal_inum", ctypes.c_uint),  # 0x00E0
-        ("s_journal_dev", ctypes.c_uint),  # 0x00E4
-        ("s_last_orphan", ctypes.c_uint),  # 0x00E8
-        ("s_hash_seed", ctypes.c_uint * 4),  # 0x00EC
-        ("s_def_hash_version", ctypes.c_ubyte),  # 0x00FC
-        ("s_jnl_backup_type", ctypes.c_ubyte),  # 0x00FD
-        ("s_desc_size", ctypes.c_ushort),  # 0x00FE
-        ("s_default_mount_opts", ctypes.c_uint),  # 0x0100
-        ("s_first_meta_bg", ctypes.c_uint),  # 0x0104
-        ("s_mkfs_time", ctypes.c_uint),  # 0x0108
-        ("s_jnl_blocks", ctypes.c_uint * 17),  # 0x010C
+        ('s_inodes_count', ctypes.c_uint),  # 0x0000
+        ('s_blocks_count_lo', ctypes.c_uint),  # 0x0004
+        ('s_r_blocks_count_lo', ctypes.c_uint),  # 0x0008
+        ('s_free_blocks_count_lo', ctypes.c_uint),  # 0x000C
+        ('s_free_inodes_count', ctypes.c_uint),  # 0x0010
+        ('s_first_data_block', ctypes.c_uint),  # 0x0014
+        ('s_log_block_size', ctypes.c_uint),  # 0x0018
+        ('s_log_cluster_size', ctypes.c_uint),  # 0x001C
+        ('s_blocks_per_group', ctypes.c_uint),  # 0x0020
+        ('s_clusters_per_group', ctypes.c_uint),  # 0x0024
+        ('s_inodes_per_group', ctypes.c_uint),  # 0x0028
+        ('s_mtime', ctypes.c_uint),  # 0x002C
+        ('s_wtime', ctypes.c_uint),  # 0x0030
+        ('s_mnt_count', ctypes.c_ushort),  # 0x0034
+        ('s_max_mnt_count', ctypes.c_ushort),  # 0x0036
+        ('s_magic', ctypes.c_ushort),  # 0x0038, Must be 0xEF53
+        ('s_state', ctypes.c_ushort),  # 0x003A
+        ('s_errors', ctypes.c_ushort),  # 0x003C
+        ('s_minor_rev_level', ctypes.c_ushort),  # 0x003E
+        ('s_lastcheck', ctypes.c_uint),  # 0x0040
+        ('s_checkinterval', ctypes.c_uint),  # 0x0044
+        ('s_creator_os', ctypes.c_uint),  # 0x0048
+        ('s_rev_level', ctypes.c_uint),  # 0x004C
+        ('s_def_resuid', ctypes.c_ushort),  # 0x0050
+        ('s_def_resgid', ctypes.c_ushort),  # 0x0052
+        ('s_first_ino', ctypes.c_uint),  # 0x0054
+        ('s_inode_size', ctypes.c_ushort),  # 0x0058
+        ('s_block_group_nr', ctypes.c_ushort),  # 0x005A
+        ('s_feature_compat', ctypes.c_uint),  # 0x005C
+        ('s_feature_incompat', ctypes.c_uint),  # 0x0060
+        ('s_feature_ro_compat', ctypes.c_uint),  # 0x0064
+        ('s_uuid', ctypes.c_ubyte * 16),  # 0x0068
+        ('s_volume_name', ctypes.c_char * 16),  # 0x0078
+        ('s_last_mounted', ctypes.c_char * 64),  # 0x0088
+        ('s_algorithm_usage_bitmap', ctypes.c_uint),  # 0x00C8
+        ('s_prealloc_blocks', ctypes.c_ubyte),  # 0x00CC
+        ('s_prealloc_dir_blocks', ctypes.c_ubyte),  # 0x00CD
+        ('s_reserved_gdt_blocks', ctypes.c_ushort),  # 0x00CE
+        ('s_journal_uuid', ctypes.c_ubyte * 16),  # 0x00D0
+        ('s_journal_inum', ctypes.c_uint),  # 0x00E0
+        ('s_journal_dev', ctypes.c_uint),  # 0x00E4
+        ('s_last_orphan', ctypes.c_uint),  # 0x00E8
+        ('s_hash_seed', ctypes.c_uint * 4),  # 0x00EC
+        ('s_def_hash_version', ctypes.c_ubyte),  # 0x00FC
+        ('s_jnl_backup_type', ctypes.c_ubyte),  # 0x00FD
+        ('s_desc_size', ctypes.c_ushort),  # 0x00FE
+        ('s_default_mount_opts', ctypes.c_uint),  # 0x0100
+        ('s_first_meta_bg', ctypes.c_uint),  # 0x0104
+        ('s_mkfs_time', ctypes.c_uint),  # 0x0108
+        ('s_jnl_blocks', ctypes.c_uint * 17),  # 0x010C
         # 64-bit fields
-        ("s_blocks_count_hi", ctypes.c_uint),  # 0x0150
-        ("s_r_blocks_count_hi", ctypes.c_uint),  # 0x0154
-        ("s_free_blocks_count_hi", ctypes.c_uint),  # 0x0158
-        ("s_min_extra_isize", ctypes.c_ushort),  # 0x015C
-        ("s_want_extra_isize", ctypes.c_ushort),  # 0x015E
-        ("s_flags", ctypes.c_uint),  # 0x0160
-        ("s_raid_stride", ctypes.c_ushort),  # 0x0164
-        ("s_mmp_interval", ctypes.c_ushort),  # 0x0166
-        ("s_mmp_block", ctypes.c_ulonglong),  # 0x0168
-        ("s_raid_stripe_width", ctypes.c_uint),  # 0x0170
-        ("s_log_groups_per_flex", ctypes.c_ubyte),  # 0x0174
-        ("s_checksum_type", ctypes.c_ubyte),  # 0x0175
-        ("s_reserved_pad", ctypes.c_ushort),  # 0x0176
-        ("s_kbytes_written", ctypes.c_ulonglong),  # 0x0178
-        ("s_snapshot_inum", ctypes.c_uint),  # 0x0180
-        ("s_snapshot_id", ctypes.c_uint),  # 0x0184
-        ("s_snapshot_r_blocks_count", ctypes.c_ulonglong),  # 0x0188
-        ("s_snapshot_list", ctypes.c_uint),  # 0x0190
-        ("s_error_count", ctypes.c_uint),  # 0x0194
-        ("s_first_error_time", ctypes.c_uint),  # 0x0198
-        ("s_first_error_ino", ctypes.c_uint),  # 0x019C
-        ("s_first_error_block", ctypes.c_ulonglong),  # 0x01A0
-        ("s_first_error_func", ctypes.c_ubyte * 32),  # 0x01A8
-        ("s_first_error_line", ctypes.c_uint),  # 0x01C8
-        ("s_last_error_time", ctypes.c_uint),  # 0x01CC
-        ("s_last_error_ino", ctypes.c_uint),  # 0x01D0
-        ("s_last_error_line", ctypes.c_uint),  # 0x01D4
-        ("s_last_error_block", ctypes.c_ulonglong),  # 0x01D8
-        ("s_last_error_func", ctypes.c_ubyte * 32),  # 0x01E0
-        ("s_mount_opts", ctypes.c_ubyte * 64),  # 0x0200
-        ("s_usr_quota_inum", ctypes.c_uint),  # 0x0240
-        ("s_grp_quota_inum", ctypes.c_uint),  # 0x0244
-        ("s_overhead_blocks", ctypes.c_uint),  # 0x0248
-        ("s_backup_bgs", ctypes.c_uint * 2),  # 0x024C
-        ("s_encrypt_algos", ctypes.c_ubyte * 4),  # 0x0254
-        ("s_encrypt_pw_salt", ctypes.c_ubyte * 16),  # 0x0258
-        ("s_lpf_ino", ctypes.c_uint),  # 0x0268
-        ("s_prj_quota_inum", ctypes.c_uint),  # 0x026C
-        ("s_checksum_seed", ctypes.c_uint),  # 0x0270
-        ("s_reserved", ctypes.c_uint * 98),  # 0x0274
-        ("s_checksum", ctypes.c_uint),  # 0x03FC
+        ('s_blocks_count_hi', ctypes.c_uint),  # 0x0150
+        ('s_r_blocks_count_hi', ctypes.c_uint),  # 0x0154
+        ('s_free_blocks_count_hi', ctypes.c_uint),  # 0x0158
+        ('s_min_extra_isize', ctypes.c_ushort),  # 0x015C
+        ('s_want_extra_isize', ctypes.c_ushort),  # 0x015E
+        ('s_flags', ctypes.c_uint),  # 0x0160
+        ('s_raid_stride', ctypes.c_ushort),  # 0x0164
+        ('s_mmp_interval', ctypes.c_ushort),  # 0x0166
+        ('s_mmp_block', ctypes.c_ulonglong),  # 0x0168
+        ('s_raid_stripe_width', ctypes.c_uint),  # 0x0170
+        ('s_log_groups_per_flex', ctypes.c_ubyte),  # 0x0174
+        ('s_checksum_type', ctypes.c_ubyte),  # 0x0175
+        ('s_reserved_pad', ctypes.c_ushort),  # 0x0176
+        ('s_kbytes_written', ctypes.c_ulonglong),  # 0x0178
+        ('s_snapshot_inum', ctypes.c_uint),  # 0x0180
+        ('s_snapshot_id', ctypes.c_uint),  # 0x0184
+        ('s_snapshot_r_blocks_count', ctypes.c_ulonglong),  # 0x0188
+        ('s_snapshot_list', ctypes.c_uint),  # 0x0190
+        ('s_error_count', ctypes.c_uint),  # 0x0194
+        ('s_first_error_time', ctypes.c_uint),  # 0x0198
+        ('s_first_error_ino', ctypes.c_uint),  # 0x019C
+        ('s_first_error_block', ctypes.c_ulonglong),  # 0x01A0
+        ('s_first_error_func', ctypes.c_ubyte * 32),  # 0x01A8
+        ('s_first_error_line', ctypes.c_uint),  # 0x01C8
+        ('s_last_error_time', ctypes.c_uint),  # 0x01CC
+        ('s_last_error_ino', ctypes.c_uint),  # 0x01D0
+        ('s_last_error_line', ctypes.c_uint),  # 0x01D4
+        ('s_last_error_block', ctypes.c_ulonglong),  # 0x01D8
+        ('s_last_error_func', ctypes.c_ubyte * 32),  # 0x01E0
+        ('s_mount_opts', ctypes.c_ubyte * 64),  # 0x0200
+        ('s_usr_quota_inum', ctypes.c_uint),  # 0x0240
+        ('s_grp_quota_inum', ctypes.c_uint),  # 0x0244
+        ('s_overhead_blocks', ctypes.c_uint),  # 0x0248
+        ('s_backup_bgs', ctypes.c_uint * 2),  # 0x024C
+        ('s_encrypt_algos', ctypes.c_ubyte * 4),  # 0x0254
+        ('s_encrypt_pw_salt', ctypes.c_ubyte * 16),  # 0x0258
+        ('s_lpf_ino', ctypes.c_uint),  # 0x0268
+        ('s_prj_quota_inum', ctypes.c_uint),  # 0x026C
+        ('s_checksum_seed', ctypes.c_uint),  # 0x0270
+        ('s_reserved', ctypes.c_uint * 98),  # 0x0274
+        ('s_checksum', ctypes.c_uint),  # 0x03FC
     ]
 
     @staticmethod
@@ -377,12 +377,12 @@ class ext4_superblock(ext4_struct):
 
 class ext4_xattr_entry(ext4_struct):
     _fields_ = [
-        ("e_name_len", ctypes.c_ubyte),  # 0x00
-        ("e_name_index", ctypes.c_ubyte),  # 0x01
-        ("e_value_offs", ctypes.c_ushort),  # 0x02
-        ("e_value_inum", ctypes.c_uint),  # 0x04
-        ("e_value_size", ctypes.c_uint),  # 0x08
-        ("e_hash", ctypes.c_uint),  # 0x0C
+        ('e_name_len', ctypes.c_ubyte),  # 0x00
+        ('e_name_index', ctypes.c_ubyte),  # 0x01
+        ('e_value_offs', ctypes.c_ushort),  # 0x02
+        ('e_value_inum', ctypes.c_uint),  # 0x04
+        ('e_value_size', ctypes.c_uint),  # 0x08
+        ('e_hash', ctypes.c_uint),  # 0x0C
         # Variable length field "e_name" missing at 0x10
     ]
 
@@ -399,18 +399,18 @@ class ext4_xattr_entry(ext4_struct):
 
 class ext4_xattr_header(ext4_struct):
     _fields_ = [
-        ("h_magic", ctypes.c_uint),  # 0x0, Must be 0xEA020000
-        ("h_refcount", ctypes.c_uint),  # 0x4
-        ("h_blocks", ctypes.c_uint),  # 0x8
-        ("h_hash", ctypes.c_uint),  # 0xC
-        ("h_checksum", ctypes.c_uint),  # 0x10
-        ("h_reserved", ctypes.c_uint * 3),  # 0x14
+        ('h_magic', ctypes.c_uint),  # 0x0, Must be 0xEA020000
+        ('h_refcount', ctypes.c_uint),  # 0x4
+        ('h_blocks', ctypes.c_uint),  # 0x8
+        ('h_hash', ctypes.c_uint),  # 0xC
+        ('h_checksum', ctypes.c_uint),  # 0x10
+        ('h_reserved', ctypes.c_uint * 3),  # 0x14
     ]
 
 
 class ext4_xattr_ibody_header(ext4_struct):
     _fields_ = [
-        ("h_magic", ctypes.c_uint)  # 0x0, Must be 0xEA020000
+        ('h_magic', ctypes.c_uint)  # 0x0, Must be 0xEA020000
     ]
 
 
@@ -441,7 +441,7 @@ class MappingEntry:
         yield self.block_count
 
     def __repr__(self):
-        return f"{type(self).__name__:s}({self.file_block_idx!r:s}, {self.disk_block_idx!r:s}, {self.block_count!r:s})"
+        return f'{type(self).__name__:s}({self.file_block_idx!r:s}, {self.disk_block_idx!r:s}, {self.block_count!r:s})'
 
     def copy(self):
         return MappingEntry(self.file_block_idx, self.disk_block_idx, self.block_count)
@@ -485,7 +485,7 @@ class Volume:
         self.platform64 = (self.superblock.s_feature_incompat & ext4_superblock.INCOMPAT_64BIT) != 0
 
         if not ignore_magic and self.superblock.s_magic != 0xEF53:
-            raise MagicError(f"Invalid magic value in superblock: 0x{self.superblock.s_magic:04X} (expected 0xEF53)")
+            raise MagicError(f'Invalid magic value in superblock: 0x{self.superblock.s_magic:04X} (expected 0xEF53)')
 
         # Group descriptors
         self.group_descriptors = [None] * (self.superblock.s_inodes_count // self.superblock.s_inodes_per_group)
@@ -496,7 +496,7 @@ class Volume:
             self.group_descriptors[group_desc_idx] = self.read_struct(ext4_group_descriptor, group_desc_offset)
 
     def __repr__(self):
-        return f"{type(self).__name__:s}(volume_name = {self.superblock.s_volume_name!r:s}, uuid = {self.uuid!r:s}, last_mounted = {self.superblock.s_last_mounted!r:s})"
+        return f'{type(self).__name__:s}(volume_name = {self.superblock.s_volume_name!r:s}, uuid = {self.uuid!r:s}, last_mounted = {self.superblock.s_last_mounted!r:s})'
 
     @property
     def block_size(self):
@@ -513,21 +513,21 @@ class Volume:
     @property
     def get_info_list(self):
         data = [
-            ["Filesystem magic number", hex(self.superblock.s_magic).upper()],
-            ["Filesystem volume name", self.superblock.s_volume_name.decode()],
-            ["Filesystem UUID", self.uuid],
-            ["Last mounted on", self.superblock.s_last_mounted.decode()],
-            ["Block size", f"{1 << (10 + self.superblock.s_log_block_size)}"],
-            ["Block count", self.superblock.s_blocks_count],
-            ["Free inodes", self.superblock.s_free_inodes_count],
-            ["Free blocks", self.superblock.s_free_blocks_count],
-            ["Inodes per group", self.superblock.s_inodes_per_group],
-            ["Blocks per group", self.superblock.s_blocks_per_group],
-            ["Inode count", self.superblock.s_inodes_count],
-            ["Reserved GDT blocks", self.superblock.s_reserved_gdt_blocks],
-            ["Inode size", self.superblock.s_inode_size],
-            ["Filesystem created", self.superblock.s_mkfs_time],
-            ["Currect Size", self.get_block_count * self.block_size],
+            ['Filesystem magic number', hex(self.superblock.s_magic).upper()],
+            ['Filesystem volume name', self.superblock.s_volume_name.decode()],
+            ['Filesystem UUID', self.uuid],
+            ['Last mounted on', self.superblock.s_last_mounted.decode()],
+            ['Block size', f'{1 << (10 + self.superblock.s_log_block_size)}'],
+            ['Block count', self.superblock.s_blocks_count],
+            ['Free inodes', self.superblock.s_free_inodes_count],
+            ['Free blocks', self.superblock.s_free_blocks_count],
+            ['Inodes per group', self.superblock.s_inodes_per_group],
+            ['Blocks per group', self.superblock.s_blocks_per_group],
+            ['Inode count', self.superblock.s_inodes_count],
+            ['Reserved GDT blocks', self.superblock.s_reserved_gdt_blocks],
+            ['Inode size', self.superblock.s_inode_size],
+            ['Filesystem created', self.superblock.s_mkfs_time],
+            ['Currect Size', self.get_block_count * self.block_size],
         ]
         return data
 
@@ -555,7 +555,7 @@ class Volume:
     def read_struct(self, structure, offset, platform64=None):
         raw = self.read(offset, ctypes.sizeof(structure))
 
-        if hasattr(structure, "_from_buffer_copy"):
+        if hasattr(structure, '_from_buffer_copy'):
             return structure._from_buffer_copy(raw, platform64=platform64 if platform64 else self.platform64)
         else:
             return structure.from_buffer_copy(raw)
@@ -568,7 +568,7 @@ class Volume:
     def uuid(self):
         uuid = self.superblock.s_uuid
         uuid = [uuid[:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]]
-        return "-".join("".join("{0:02X}".format(c) for c in part) for part in uuid)
+        return '-'.join(''.join('{0:02X}'.format(c) for c in part) for part in uuid)
 
 
 class Inode:
@@ -585,12 +585,12 @@ class Inode:
 
     def __repr__(self):
         if self.inode_idx is not None:
-            return f"{type(self).__name__:s}(inode_idx = {self.inode_idx!r:s}, offset = 0x{self.offset:X}, volume_uuid = {self.volume.uuid!r:s})"
+            return f'{type(self).__name__:s}(inode_idx = {self.inode_idx!r:s}, offset = 0x{self.offset:X}, volume_uuid = {self.volume.uuid!r:s})'
         else:
-            return f"{type(self).__name__:s}(offset = 0x{self.offset:X}, volume_uuid = {self.volume.uuid!r:s})"
+            return f'{type(self).__name__:s}(offset = 0x{self.offset:X}, volume_uuid = {self.volume.uuid!r:s})'
 
     def _parse_xattrs(self, raw_data, offset):
-        prefixes = {0: "", 1: "user.", 2: "system.posix_acl_access", 3: "system.posix_acl_default", 4: "trusted.", 6: "security.", 7: "system.", 8: "system.richacl"}
+        prefixes = {0: '', 1: 'user.', 2: 'system.posix_acl_access', 3: 'system.posix_acl_default', 4: 'trusted.', 6: 'security.', 7: 'system.', 8: 'system.richacl'}
         prefixes.update(prefixes)
 
         # Iterator over ext4_xattr_entry structures
@@ -603,16 +603,16 @@ class Inode:
                 break
 
             if xattr_entry.e_name_index not in prefixes:
-                raise Ext4Error(f"Unknown attribute prefix {xattr_entry.e_name_index:d} in inode {self.inode_idx:d}")
+                raise Ext4Error(f'Unknown attribute prefix {xattr_entry.e_name_index:d} in inode {self.inode_idx:d}')
 
-            xattr_name = prefixes[xattr_entry.e_name_index] + xattr_entry.e_name.decode("iso-8859-2")
+            xattr_name = prefixes[xattr_entry.e_name_index] + xattr_entry.e_name.decode('iso-8859-2')
 
             if xattr_entry.e_value_inum != 0:
                 # external xattr
                 xattr_inode = self.volume.get_inode(xattr_entry.e_value_inum, InodeType.FILE)
 
                 if not self.volume.ignore_flags and (xattr_inode.inode.i_flags & ext4_inode.EXT4_EA_INODE_FL) != 0:
-                    raise Ext4Error(f"Inode {xattr_inode.inode_idx:d} associated with the extended attribute {xattr_name!r:s} of inode {self.inode_idx:d} is not marked as large extended attribute value.")
+                    raise Ext4Error(f'Inode {xattr_inode.inode_idx:d} associated with the extended attribute {xattr_name!r:s} of inode {self.inode_idx:d} is not marked as large extended attribute value.')
 
                 # TODO Use xattr_entry.e_value_size or xattr_inode.inode.i_size?
                 xattr_value = xattr_inode.open_read().read()
@@ -639,20 +639,20 @@ class Inode:
 
     def get_inode(self, *relative_path, decode_name=None):
         if not self.is_dir:
-            raise Ext4Error(f"Inode {self.inode_idx:d} is not a directory.")
+            raise Ext4Error(f'Inode {self.inode_idx:d} is not a directory.')
 
         current_inode = self
 
         for i, part in enumerate(relative_path):
             if not self.volume.ignore_flags and not current_inode.is_dir:
-                current_path = "/".join(relative_path[:i])
-                raise Ext4Error(f"{current_path!r:s} (Inode {inode_idx:d}) is not a directory.")
+                current_path = '/'.join(relative_path[:i])
+                raise Ext4Error(f'{current_path!r:s} (Inode {inode_idx:d}) is not a directory.')
 
             file_name, inode_idx, file_type = next(filter(lambda entry: entry[0] == part, current_inode.open_dir(decode_name)), (None, None, None))
 
             if inode_idx is None:
-                current_path = "/".join(relative_path[:i])
-                raise FileNotFoundError(f"{part!r:s} not found in {current_path!r:s} (Inode {current_inode.inode_idx:d}).")
+                current_path = '/'.join(relative_path[:i])
+                raise FileNotFoundError(f'{part!r:s} not found in {current_path!r:s} (Inode {current_inode.inode_idx:d}).')
 
             current_inode = current_inode.volume.get_inode(inode_idx, file_type)
 
@@ -690,46 +690,46 @@ class Inode:
 
     @property
     def mode_str(self):
-        special_flag = lambda letter, execute, special: {(False, False): "-", (False, True): letter.upper(), (True, False): "x", (True, True): letter.lower()}[(execute, special)]
+        special_flag = lambda letter, execute, special: {(False, False): '-', (False, True): letter.upper(), (True, False): 'x', (True, True): letter.lower()}[(execute, special)]
 
         try:
             if (self.volume.superblock.s_feature_incompat & ext4_superblock.INCOMPAT_FILETYPE) == 0:
                 device_type = {
-                    ext4_inode.S_IFIFO: "p",
-                    ext4_inode.S_IFCHR: "c",
-                    ext4_inode.S_IFDIR: "d",
-                    ext4_inode.S_IFBLK: "b",
-                    ext4_inode.S_IFREG: "-",
-                    ext4_inode.S_IFLNK: "l",
-                    ext4_inode.S_IFSOCK: "s",
+                    ext4_inode.S_IFIFO: 'p',
+                    ext4_inode.S_IFCHR: 'c',
+                    ext4_inode.S_IFDIR: 'd',
+                    ext4_inode.S_IFBLK: 'b',
+                    ext4_inode.S_IFREG: '-',
+                    ext4_inode.S_IFLNK: 'l',
+                    ext4_inode.S_IFSOCK: 's',
                 }[self.inode.i_mode & 0xF000]
             else:
-                device_type = {InodeType.FILE: "-", InodeType.DIRECTORY: "d", InodeType.CHARACTER_DEVICE: "c", InodeType.BLOCK_DEVICE: "b", InodeType.FIFO: "p", InodeType.SOCKET: "s", InodeType.SYMBOLIC_LINK: "l"}[self.file_type]
+                device_type = {InodeType.FILE: '-', InodeType.DIRECTORY: 'd', InodeType.CHARACTER_DEVICE: 'c', InodeType.BLOCK_DEVICE: 'b', InodeType.FIFO: 'p', InodeType.SOCKET: 's', InodeType.SYMBOLIC_LINK: 'l'}[self.file_type]
         except KeyError:
-            device_type = "?"
+            device_type = '?'
 
-        return "".join(
+        return ''.join(
             [
                 device_type,
-                "r" if (self.inode.i_mode & ext4_inode.S_IRUSR) != 0 else "-",
-                "w" if (self.inode.i_mode & ext4_inode.S_IWUSR) != 0 else "-",
-                special_flag("s", (self.inode.i_mode & ext4_inode.S_IXUSR) != 0, (self.inode.i_mode & ext4_inode.S_ISUID) != 0),
-                "r" if (self.inode.i_mode & ext4_inode.S_IRGRP) != 0 else "-",
-                "w" if (self.inode.i_mode & ext4_inode.S_IWGRP) != 0 else "-",
-                special_flag("s", (self.inode.i_mode & ext4_inode.S_IXGRP) != 0, (self.inode.i_mode & ext4_inode.S_ISGID) != 0),
-                "r" if (self.inode.i_mode & ext4_inode.S_IROTH) != 0 else "-",
-                "w" if (self.inode.i_mode & ext4_inode.S_IWOTH) != 0 else "-",
-                special_flag("t", (self.inode.i_mode & ext4_inode.S_IXOTH) != 0, (self.inode.i_mode & ext4_inode.S_ISVTX) != 0),
+                'r' if (self.inode.i_mode & ext4_inode.S_IRUSR) != 0 else '-',
+                'w' if (self.inode.i_mode & ext4_inode.S_IWUSR) != 0 else '-',
+                special_flag('s', (self.inode.i_mode & ext4_inode.S_IXUSR) != 0, (self.inode.i_mode & ext4_inode.S_ISUID) != 0),
+                'r' if (self.inode.i_mode & ext4_inode.S_IRGRP) != 0 else '-',
+                'w' if (self.inode.i_mode & ext4_inode.S_IWGRP) != 0 else '-',
+                special_flag('s', (self.inode.i_mode & ext4_inode.S_IXGRP) != 0, (self.inode.i_mode & ext4_inode.S_ISGID) != 0),
+                'r' if (self.inode.i_mode & ext4_inode.S_IROTH) != 0 else '-',
+                'w' if (self.inode.i_mode & ext4_inode.S_IWOTH) != 0 else '-',
+                special_flag('t', (self.inode.i_mode & ext4_inode.S_IXOTH) != 0, (self.inode.i_mode & ext4_inode.S_ISVTX) != 0),
             ]
         )
 
     def open_dir(self, decode_name=None):
         # Parse args
         if decode_name is None:
-            decode_name = lambda raw: raw.decode("utf8")
+            decode_name = lambda raw: raw.decode('utf8')
 
         if not self.volume.ignore_flags and not self.is_dir:
-            raise Ext4Error(f"Inode ({self.inode_idx:d}) is not a directory.")
+            raise Ext4Error(f'Inode ({self.inode_idx:d}) is not a directory.')
 
         # # Hash trees are compatible with linear arrays
         if (self.inode.i_flags & ext4_inode.EXT4_INDEX_FL) != 0:
@@ -760,7 +760,7 @@ class Inode:
                 header = self.volume.read_struct(ext4_extent_header, header_offset)
 
                 if not self.volume.ignore_magic and header.eh_magic != 0xF30A:
-                    raise MagicError(f"Invalid magic value in extent header at offset 0x{self.inode_idx:X} of" f" inode {self.inode_idx:d}: 0x{header.eh_magic:04X} (expected 0xF30A)")
+                    raise MagicError(f'Invalid magic value in extent header at offset 0x{self.inode_idx:X} of' f' inode {self.inode_idx:d}: 0x{header.eh_magic:04X} (expected 0xF30A)')
 
                 if header.eh_depth != 0:
                     indices = self.volume.read_struct(ext4_extent_idx * header.eh_entries, header_offset + ctypes.sizeof(ext4_extent_header))
@@ -781,12 +781,12 @@ class Inode:
     @property
     def size_readable(self):
         if self.inode.i_size < 1024:
-            return "{0:d} bytes".format(self.inode.i_size) if self.inode.i_size != 1 else "1 byte"
+            return '{0:d} bytes'.format(self.inode.i_size) if self.inode.i_size != 1 else '1 byte'
         else:
-            units = ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+            units = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
             unit_idx = min(int(math.log(self.inode.i_size, 1024)), len(units))
 
-            return f"{self.inode.i_size / (1024 ** unit_idx):.2f} {units[unit_idx - 1]:s}"
+            return f'{self.inode.i_size / (1024 ** unit_idx):.2f} {units[unit_idx - 1]:s}'
 
     def xattrs(self, check_inline=True, check_block=True, force_inline=False):
         # Inline xattrs
@@ -815,10 +815,10 @@ class Inode:
                 xattrs_header = ext4_xattr_header.from_buffer_copy(xattrs_block)
                 if not self.volume.ignore_magic and xattrs_header.h_magic != 0xEA020000:
                     # Perhaps you think this code is a bit foolish, but that's all others can do
-                    print(f"Invalid magic value in xattrs block header at offset 0x{xattrs_block_start:X} of " f"inode {self.inode_idx:d}: 0x{xattrs_header.h_magic} (expected 0xEA020000)")
+                    print(f'Invalid magic value in xattrs block header at offset 0x{xattrs_block_start:X} of ' f'inode {self.inode_idx:d}: 0x{xattrs_header.h_magic} (expected 0xEA020000)')
 
                 if xattrs_header.h_blocks != 1:
-                    print(f"Invalid number of xattr blocks at offset 0x{xattrs_block_start:X} " f"of inode {self.inode_idx:d}: {xattrs_header.h_blocks:d} (expected 1)")
+                    print(f'Invalid number of xattr blocks at offset 0x{xattrs_block_start:X} ' f'of inode {self.inode_idx:d}: {xattrs_header.h_blocks:d} (expected 1)')
 
             offset = 4 * ((ctypes.sizeof(ext4_xattr_header) + 3) // 4)
             # The ext4_xattr_entry following the header is aligned on a 4-byte boundary
@@ -843,7 +843,7 @@ class BlockReader:
         self.block_map = block_map
 
     def __repr__(self):
-        return f"{type(self).__name__:s}(byte_size = {self.byte_size!r:s}, block_map = {self.block_map!r:s}, volume_uuid = {self.volume.uuid!r:s})"
+        return f'{type(self).__name__:s}(byte_size = {self.byte_size!r:s}, block_map = {self.block_map!r:s}, volume_uuid = {self.volume.uuid!r:s})'
 
     def get_block_mapping(self, file_block_idx):
         disk_block_idx = None
@@ -860,13 +860,13 @@ class BlockReader:
     def read(self, byte_len=-1):
         # Parse args
         if byte_len < -1:
-            raise ValueError("byte_len must be non-negative or -1")
+            raise ValueError('byte_len must be non-negative or -1')
 
         bytes_remaining = self.byte_size - self.cursor
         byte_len = bytes_remaining if byte_len == -1 else max(0, min(byte_len, bytes_remaining))
 
         if byte_len == 0:
-            return b""
+            return b''
 
         # Reading blocks
         start_block_idx = self.cursor // self.volume.block_size
@@ -881,7 +881,7 @@ class BlockReader:
         byte_len = (byte_len + start_offset - self.volume.block_size - 1) % self.volume.block_size + 1
         blocks[-1] = blocks[-1][:byte_len]
 
-        result = b"".join(blocks)
+        result = b''.join(blocks)
 
         # Check read
         if len(result) != end_of_stream_check:
@@ -907,7 +907,7 @@ class BlockReader:
         #     seek += 0
 
         if seek < 0:
-            raise OSError(BlockReader.EINVAL, "Invalid argument")  # Exception behavior copied from IOBase.seek
+            raise OSError(BlockReader.EINVAL, 'Invalid argument')  # Exception behavior copied from IOBase.seek
 
         self.cursor = seek
         return seek

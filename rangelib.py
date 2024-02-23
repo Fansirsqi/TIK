@@ -16,7 +16,7 @@ from __future__ import print_function
 from heapq import merge
 from itertools import cycle
 
-__all__ = ["RangeSet"]
+__all__ = ['RangeSet']
 
 
 class RangeSet(object):
@@ -50,7 +50,7 @@ class RangeSet(object):
 
     def __str__(self):
         if not self.data:
-            return "empty"
+            return 'empty'
         else:
             return self.to_string()
 
@@ -77,8 +77,8 @@ class RangeSet(object):
         last = -1
         monotonic = True
         for p in text.split():
-            if "-" in p:
-                s, e = (int(x) for x in p.split("-"))
+            if '-' in p:
+                s, e = (int(x) for x in p.split('-'))
                 data.append(s)
                 data.append(e + 1)
                 if last <= s <= e:
@@ -120,12 +120,12 @@ class RangeSet(object):
             if e == s + 1:
                 out.append(str(s))
             else:
-                out.append(str(s) + "-" + str(e - 1))
-        return " ".join(out)
+                out.append(str(s) + '-' + str(e - 1))
+        return ' '.join(out)
 
     def to_string_raw(self):
         assert self.data
-        return str(len(self.data)) + "," + ",".join(str(i) for i in self.data)
+        return str(len(self.data)) + ',' + ','.join(str(i) for i in self.data)
 
     def union(self, other):
         """Return a new RangeSet representing the union of this RangeSet
@@ -261,7 +261,7 @@ class RangeSet(object):
             s, e = self.data[i : i + 2]
             s1 = max(0, s - n)
             e1 = e + n
-            out = out.union(RangeSet(str(s1) + "-" + str(e1 - 1)))
+            out = out.union(RangeSet(str(s1) + '-' + str(e1 - 1)))
         return out
 
     def first(self, n):
@@ -297,7 +297,7 @@ class RangeSet(object):
         return RangeSet(data=out)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import doctest
 
     doctest.testmod()
