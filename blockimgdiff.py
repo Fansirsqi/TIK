@@ -28,7 +28,7 @@ from collections import deque, OrderedDict
 from hashlib import sha1
 from rangelib import RangeSet
 
-__all__ = ["EmptyImage", "DataImage", "BlockImageDiff"]
+__all__ = ['EmptyImage', 'DataImage', 'BlockImageDiff']
 
 
 class Settings(object):
@@ -38,17 +38,17 @@ class Settings(object):
 
 
 def compute_patch(src, tgt, imgdiff=False):
-    srcfd, srcfile = mkstemp(prefix="src-")
-    tgtfd, tgtfile = mkstemp(prefix="tgt-")
-    patchfd, patchfile = mkstemp(prefix="patch-")
+    srcfd, srcfile = mkstemp(prefix='src-')
+    tgtfd, tgtfile = mkstemp(prefix='tgt-')
+    patchfd, patchfile = mkstemp(prefix='patch-')
     os.close(patchfd)
 
     try:
-        with os.fdopen(srcfd, "wb") as f_src:
+        with os.fdopen(srcfd, 'wb') as f_src:
             for p in src:
                 f_src.write(p)
 
-        with os.fdopen(tgtfd, "wb") as f_tgt:
+        with os.fdopen(tgtfd, 'wb') as f_tgt:
             for p in tgt:
                 f_tgt.write(p)
         try:
@@ -56,14 +56,14 @@ def compute_patch(src, tgt, imgdiff=False):
         except OSError:
             pass
         if imgdiff:
-            p = call(["imgdiff", "-z", srcfile, tgtfile, patchfile], stdout=open("/dev/null", "a"), stderr=STDOUT)
+            p = call(['imgdiff', '-z', srcfile, tgtfile, patchfile], stdout=open('/dev/null', 'a'), stderr=STDOUT)
         else:
-            p = call(["bsdiff", srcfile, tgtfile, patchfile])
+            p = call(['bsdiff', srcfile, tgtfile, patchfile])
 
         if p:
-            raise ValueError("diff failed: " + str(p))
+            raise ValueError('diff failed: ' + str(p))
 
-        with open(patchfile, "rb") as f:
+        with open(patchfile, 'rb') as f:
             return f.read()
     finally:
         try:
@@ -117,10 +117,10 @@ class DataImage(Image):
             if trim:
                 self.data = self.data[:-partial]
             elif pad:
-                self.data += "\0" * (self.blocksize - partial)
+                self.data += '\0' * (self.blocksize - partial)
                 padded = True
             else:
-                raise ValueError(("data for DataImage must be multiple of %d bytes " "unless trim or pad is specified") % (self.blocksize,))
+                raise ValueError(('data for DataImage must be multiple of %d bytes ' 'unless trim or pad is specified') % (self.blocksize,))
 
         assert len(self.data) % self.blocksize == 0
 
@@ -140,7 +140,7 @@ class DataImage(Image):
 
         zero_blocks = []
         nonzero_blocks = []
-        reference = "\0" * self.blocksize
+        reference = '\0' * self.blocksize
 
         for i in range(self.total_blocks - 1 if padded else self.total_blocks):
             d = self.data[i * self.blocksize : (i + 1) * self.blocksize]
@@ -155,11 +155,11 @@ class DataImage(Image):
 
         self.file_map = dict()
         if zero_blocks:
-            self.file_map["__ZERO"] = RangeSet(data=zero_blocks)
+            self.file_map['__ZERO'] = RangeSet(data=zero_blocks)
         if nonzero_blocks:
-            self.file_map["__NONZERO"] = RangeSet(data=nonzero_blocks)
+            self.file_map['__NONZERO'] = RangeSet(data=nonzero_blocks)
         if clobbered_blocks:
-            self.file_map["__COPY"] = RangeSet(data=clobbered_blocks)
+            self.file_map['__COPY'] = RangeSet(data=clobbered_blocks)
 
     def ReadRangeSet(self, ranges):
         return [self.data[s * self.blocksize : e * self.blocksize] for (s, e) in ranges]
@@ -179,7 +179,7 @@ class Transfer(object):
         self.tgt_ranges = tgt_ranges
         self.src_ranges = src_ranges
         self.style = style
-        self.intact = getattr(tgt_ranges, "monotonic", False) and getattr(src_ranges, "monotonic", False)
+        self.intact = getattr(tgt_ranges, 'monotonic', False) and getattr(src_ranges, 'monotonic', False)
 
         # We use OrderedDict rather than dict so that the output is repeatable;
         # otherwise it would depend on the hash values of the Transfer objects.
@@ -196,13 +196,13 @@ class Transfer(object):
         return sum(sr.size() for (_, sr) in self.stash_before) - sum(sr.size() for (_, sr) in self.use_stash)
 
     def ConvertToNew(self):
-        assert self.style != "new"
+        assert self.style != 'new'
         self.use_stash = []
-        self.style = "new"
+        self.style = 'new'
         self.src_ranges = RangeSet()
 
     def __str__(self):
-        return str(self.id) + ": <" + str(self.src_ranges) + " " + self.style + " to " + str(self.tgt_ranges) + ">"
+        return str(self.id) + ': <' + str(self.src_ranges) + ' ' + self.style + ' to ' + str(self.tgt_ranges) + '>'
 
 
 @total_ordering
@@ -354,7 +354,7 @@ class BlockImageDiff(object):
             total = 0
             while to_zero.size() > 0:
                 zero_blocks = to_zero.first(zero_blocks_limit)
-                out.append("zero %s\n" % (zero_blocks.to_string_raw(),))
+                out.append('zero %s\n' % (zero_blocks.to_string_raw(),))
                 total += zero_blocks.size()
                 to_zero = to_zero.subtract(zero_blocks)
             return total
@@ -385,7 +385,7 @@ class BlockImageDiff(object):
                 stashes[s] = sid
                 if self.version == 2:
                     stashed_blocks += sr.size()
-                    out.append("stash %d %s\n" % (sid, sr.to_string_raw()))
+                    out.append('stash %d %s\n' % (sid, sr.to_string_raw()))
                 else:
                     sh = self.HashBlocks(self.src, sr)
                     if sh in stashes:
@@ -394,7 +394,7 @@ class BlockImageDiff(object):
                         stashes[sh] = 1
                         stashed_blocks += sr.size()
                         self.touched_src_ranges = self.touched_src_ranges.union(sr)
-                        out.append("stash %s %s\n" % (sh, sr.to_string_raw()))
+                        out.append('stash %s %s\n' % (sh, sr.to_string_raw()))
 
             if stashed_blocks > max_stashed_blocks:
                 max_stashed_blocks = stashed_blocks
@@ -403,7 +403,7 @@ class BlockImageDiff(object):
             free_size = 0
 
             if self.version == 1:
-                src_str = xf.src_ranges.to_string_raw() if xf.src_ranges.size() > 0 else ""
+                src_str = xf.src_ranges.to_string_raw() if xf.src_ranges.size() > 0 else ''
             elif self.version >= 2:
                 #   <# blocks> <src ranges>
                 #     OR
@@ -423,21 +423,21 @@ class BlockImageDiff(object):
                     sr = xf.src_ranges.map_within(sr)
                     mapped_stashes.append(sr)
                     if self.version == 2:
-                        src_str.append("%d:%s" % (sid, sr.to_string_raw()))
+                        src_str.append('%d:%s' % (sid, sr.to_string_raw()))
                         # A stash will be used only once. We need to free the stash
                         # immediately after the use, instead of waiting for the automatic
                         # clean-up at the end. Because otherwise it may take up extra space
                         # and lead to OTA failures.
                         # Bug: 23119955
-                        free_string.append("free %d\n" % (sid,))
+                        free_string.append('free %d\n' % (sid,))
                         free_size += sr.size()
                     else:
                         assert sh in stashes
-                        src_str.append("%s:%s" % (sh, sr.to_string_raw()))
+                        src_str.append('%s:%s' % (sh, sr.to_string_raw()))
                         stashes[sh] -= 1
                         if stashes[sh] == 0:
                             free_size += sr.size()
-                            free_string.append("free %s\n" % sh)
+                            free_string.append('free %s\n' % sh)
                             stashes.pop(sh)
                     heappush(free_stash_ids, sid)
 
@@ -449,10 +449,10 @@ class BlockImageDiff(object):
                         mapped_stashes.append(mapped_unstashed)
                         self.AssertPartition(RangeSet(data=(0, size)), mapped_stashes)
                 else:
-                    src_str.insert(1, "-")
+                    src_str.insert(1, '-')
                     self.AssertPartition(RangeSet(data=(0, size)), mapped_stashes)
 
-                src_str = " ".join(src_str)
+                src_str = ' '.join(src_str)
 
             # all versions:
             #   zero <rangeset>
@@ -476,18 +476,18 @@ class BlockImageDiff(object):
 
             tgt_size = xf.tgt_ranges.size()
 
-            if xf.style == "new":
+            if xf.style == 'new':
                 assert xf.tgt_ranges
-                out.append("%s %s\n" % (xf.style, xf.tgt_ranges.to_string_raw()))
+                out.append('%s %s\n' % (xf.style, xf.tgt_ranges.to_string_raw()))
                 total += tgt_size
-            elif xf.style == "move":
+            elif xf.style == 'move':
                 assert xf.tgt_ranges
                 assert xf.src_ranges.size() == tgt_size
                 if xf.src_ranges != xf.tgt_ranges:
                     if self.version == 1:
-                        out.append("%s %s %s\n" % (xf.style, xf.src_ranges.to_string_raw(), xf.tgt_ranges.to_string_raw()))
+                        out.append('%s %s %s\n' % (xf.style, xf.src_ranges.to_string_raw(), xf.tgt_ranges.to_string_raw()))
                     elif self.version == 2:
-                        out.append("%s %s %s\n" % (xf.style, xf.tgt_ranges.to_string_raw(), src_str))
+                        out.append('%s %s %s\n' % (xf.style, xf.tgt_ranges.to_string_raw(), src_str))
                     elif self.version >= 3:
                         # take into account automatic stashing of overlapping blocks
                         if xf.src_ranges.overlaps(xf.tgt_ranges):
@@ -497,15 +497,15 @@ class BlockImageDiff(object):
 
                         self.touched_src_ranges = self.touched_src_ranges.union(xf.src_ranges)
 
-                        out.append("%s %s %s %s\n" % (xf.style, self.HashBlocks(self.tgt, xf.tgt_ranges), xf.tgt_ranges.to_string_raw(), src_str))
+                        out.append('%s %s %s %s\n' % (xf.style, self.HashBlocks(self.tgt, xf.tgt_ranges), xf.tgt_ranges.to_string_raw(), src_str))
                     total += tgt_size
-            elif xf.style in ("bsdiff", "imgdiff"):
+            elif xf.style in ('bsdiff', 'imgdiff'):
                 assert xf.tgt_ranges
                 assert xf.src_ranges
                 if self.version == 1:
-                    out.append("%s %d %d %s %s\n" % (xf.style, xf.patch_start, xf.patch_len, xf.src_ranges.to_string_raw(), xf.tgt_ranges.to_string_raw()))
+                    out.append('%s %d %d %s %s\n' % (xf.style, xf.patch_start, xf.patch_len, xf.src_ranges.to_string_raw(), xf.tgt_ranges.to_string_raw()))
                 elif self.version == 2:
-                    out.append("%s %d %d %s %s\n" % (xf.style, xf.patch_start, xf.patch_len, xf.tgt_ranges.to_string_raw(), src_str))
+                    out.append('%s %d %d %s %s\n' % (xf.style, xf.patch_start, xf.patch_len, xf.tgt_ranges.to_string_raw(), src_str))
                 elif self.version >= 3:
                     # take into account automatic stashing of overlapping blocks
                     if xf.src_ranges.overlaps(xf.tgt_ranges):
@@ -515,9 +515,9 @@ class BlockImageDiff(object):
 
                     self.touched_src_ranges = self.touched_src_ranges.union(xf.src_ranges)
 
-                    out.append("%s %d %d %s %s %s %s\n" % (xf.style, xf.patch_start, xf.patch_len, self.HashBlocks(self.src, xf.src_ranges), self.HashBlocks(self.tgt, xf.tgt_ranges), xf.tgt_ranges.to_string_raw(), src_str))
+                    out.append('%s %d %d %s %s %s %s\n' % (xf.style, xf.patch_start, xf.patch_len, self.HashBlocks(self.src, xf.src_ranges), self.HashBlocks(self.tgt, xf.tgt_ranges), xf.tgt_ranges.to_string_raw(), src_str))
                 total += tgt_size
-            elif xf.style == "zero":
+            elif xf.style == 'zero':
                 assert xf.tgt_ranges
                 to_zero = xf.tgt_ranges.subtract(xf.src_ranges)
                 assert WriteTransfersZero(out, to_zero) == to_zero.size()
@@ -526,7 +526,7 @@ class BlockImageDiff(object):
                 raise ValueError("unknown transfer style '%s'\n" % xf.style)
 
             if free_string:
-                out.append("".join(free_string))
+                out.append(''.join(free_string))
                 stashed_blocks -= free_size
 
             if self.version >= 2 and Settings.cache_size is not None:
@@ -538,7 +538,7 @@ class BlockImageDiff(object):
                 cache_size = Settings.cache_size
                 stash_threshold = Settings.stash_threshold
                 max_allowed = cache_size * stash_threshold
-                assert max_stashed_blocks * self.tgt.blocksize < max_allowed, "Stash size %d (%d * %d) exceeds the limit %d (%d * %.2f)" % (max_stashed_blocks * self.tgt.blocksize, max_stashed_blocks, self.tgt.blocksize, max_allowed, cache_size, stash_threshold)
+                assert max_stashed_blocks * self.tgt.blocksize < max_allowed, 'Stash size %d (%d * %d) exceeds the limit %d (%d * %.2f)' % (max_stashed_blocks * self.tgt.blocksize, max_stashed_blocks, self.tgt.blocksize, max_allowed, cache_size, stash_threshold)
 
         if self.version >= 3:
             self.touched_src_sha1 = self.HashBlocks(self.src, self.touched_src_ranges)
@@ -560,35 +560,35 @@ class BlockImageDiff(object):
 
         erase_first = new_dontcare.subtract(self.touched_src_ranges)
         if erase_first.size() > 0:
-            out.insert(0, "erase %s\n" % (erase_first.to_string_raw(),))
+            out.insert(0, 'erase %s\n' % (erase_first.to_string_raw(),))
 
         erase_last = new_dontcare.subtract(erase_first)
         if erase_last.size() > 0:
-            out.append("erase %s\n" % (erase_last.to_string_raw(),))
+            out.append('erase %s\n' % (erase_last.to_string_raw(),))
 
-        out.insert(0, "%d\n" % (self.version,))  # format version number
-        out.insert(1, "%d\n" % (total,))
+        out.insert(0, '%d\n' % (self.version,))  # format version number
+        out.insert(1, '%d\n' % (total,))
         if self.version >= 2:
             # version 2 only: after the total block count, we give the number
             # of stash slots needed, and the maximum size needed (in blocks)
-            out.insert(2, str(next_stash_id) + "\n")
-            out.insert(3, str(max_stashed_blocks) + "\n")
+            out.insert(2, str(next_stash_id) + '\n')
+            out.insert(3, str(max_stashed_blocks) + '\n')
 
-        with open(prefix + ".transfer.list", "wb") as f:
+        with open(prefix + '.transfer.list', 'wb') as f:
             for i in out:
-                f.write(i.encode("UTF-8"))
+                f.write(i.encode('UTF-8'))
 
         if self.version >= 2:
             self._max_stashed_size = max_stashed_blocks * self.tgt.blocksize
             OPTIONS = Settings
             if OPTIONS.cache_size is not None:
                 max_allowed = OPTIONS.cache_size * OPTIONS.stash_threshold
-                print("max stashed blocks: %d  (%d bytes), " "limit: %d bytes (%.2f%%)\n" % (max_stashed_blocks, self._max_stashed_size, max_allowed, self._max_stashed_size * 100.0 / max_allowed))
+                print('max stashed blocks: %d  (%d bytes), ' 'limit: %d bytes (%.2f%%)\n' % (max_stashed_blocks, self._max_stashed_size, max_allowed, self._max_stashed_size * 100.0 / max_allowed))
             else:
-                print("max stashed blocks: %d  (%d bytes), limit: <unknown>\n" % (max_stashed_blocks, self._max_stashed_size))
+                print('max stashed blocks: %d  (%d bytes), limit: <unknown>\n' % (max_stashed_blocks, self._max_stashed_size))
 
     def ReviseStashSize(self):
-        print("Revising stash size...")
+        print('Revising stash size...')
         stashes = {}
 
         # Create the map between a stash and its def/use points. For example, for a
@@ -625,7 +625,7 @@ class BlockImageDiff(object):
                     # that will use this stash and replace the command with "new".
                     use_cmd = stashes[idx][2]
                     replaced_cmds.append(use_cmd)
-                    print("%10d  %9s  %s" % (sr.size(), "explicit", use_cmd))
+                    print('%10d  %9s  %s' % (sr.size(), 'explicit', use_cmd))
                 else:
                     stashed_blocks += sr.size()
 
@@ -635,12 +635,12 @@ class BlockImageDiff(object):
 
             # "move" and "diff" may introduce implicit stashes in BBOTA v3. Prior to
             # ComputePatches(), they both have the style of "diff".
-            if xf.style == "diff" and self.version >= 3:
+            if xf.style == 'diff' and self.version >= 3:
                 assert xf.tgt_ranges and xf.src_ranges
                 if xf.src_ranges.overlaps(xf.tgt_ranges):
                     if stashed_blocks + xf.src_ranges.size() > max_allowed:
                         replaced_cmds.append(xf)
-                        print("%10d  %9s  %s" % (xf.src_ranges.size(), "implicit", xf))
+                        print('%10d  %9s  %s' % (xf.src_ranges.size(), 'implicit', xf))
 
             # Replace the commands in replaced_cmds with "new"s.
             for cmd in replaced_cmds:
@@ -657,20 +657,20 @@ class BlockImageDiff(object):
                 cmd.ConvertToNew()
 
         num_of_bytes = new_blocks * self.tgt.blocksize
-        print("  Total %d blocks (%d bytes) are packed as new blocks due to " "insufficient cache size." % (new_blocks, num_of_bytes))
+        print('  Total %d blocks (%d bytes) are packed as new blocks due to ' 'insufficient cache size.' % (new_blocks, num_of_bytes))
 
     def ComputePatches(self, prefix):
-        print("Reticulating splines...")
+        print('Reticulating splines...')
         diff_q = []
         patch_num = 0
-        with open(prefix + ".new.dat", "wb") as new_f:
+        with open(prefix + '.new.dat', 'wb') as new_f:
             for xf in self.transfers:
-                if xf.style == "zero":
+                if xf.style == 'zero':
                     pass
-                elif xf.style == "new":
+                elif xf.style == 'new':
                     for piece in self.tgt.ReadRangeSet(xf.tgt_ranges):
                         new_f.write(piece)
-                elif xf.style == "diff":
+                elif xf.style == 'diff':
                     src = self.src.ReadRangeSet(xf.src_ranges)
                     tgt = self.tgt.ReadRangeSet(xf.tgt_ranges)
 
@@ -695,7 +695,7 @@ class BlockImageDiff(object):
                     if src_sha1.digest() == tgt_sha1.digest():
                         # These are identical; we don't need to generate a patch,
                         # just issue copy commands on the device.
-                        xf.style = "move"
+                        xf.style = 'move'
                     else:
                         # For files in zip format (eg, APKs, JARs, etc.) we would
                         # like to use imgdiff -z if possible (because it usually
@@ -712,19 +712,19 @@ class BlockImageDiff(object):
                         # zip file (plus possibly extra zeros in the last block),
                         # which is what imgdiff needs to operate.  (imgdiff is
                         # fine with extra zeros at the end of the file.)
-                        imgdiff = not self.disable_imgdiff and xf.intact and xf.tgt_name.split(".")[-1].lower() in ("apk", "jar", "zip")
-                        xf.style = "imgdiff" if imgdiff else "bsdiff"
+                        imgdiff = not self.disable_imgdiff and xf.intact and xf.tgt_name.split('.')[-1].lower() in ('apk', 'jar', 'zip')
+                        xf.style = 'imgdiff' if imgdiff else 'bsdiff'
                         diff_q.append((tgt_size, src, tgt, xf, patch_num))
                         patch_num += 1
 
                 else:
-                    assert False, "unknown style " + xf.style
+                    assert False, 'unknown style ' + xf.style
 
         if diff_q:
             if self.threads > 1:
-                print("Computing patches (using %d threads)..." % (self.threads,))
+                print('Computing patches (using %d threads)...' % (self.threads,))
             else:
-                print("Computing patches...")
+                print('Computing patches...')
             diff_q.sort()
 
             patches = [None] * patch_num
@@ -738,11 +738,11 @@ class BlockImageDiff(object):
                         if not diff_q:
                             return
                         tgt_size, src, tgt, xf, patchnum = diff_q.pop()
-                    patch = compute_patch(src, tgt, imgdiff=(xf.style == "imgdiff"))
+                    patch = compute_patch(src, tgt, imgdiff=(xf.style == 'imgdiff'))
                     size = len(patch)
                     with lock:
                         patches[patchnum] = (patch, xf)
-                        print("%10d %10d (%6.2f%%) %7s %s" % (size, tgt_size, size * 100.0 / tgt_size, xf.style, xf.tgt_name if xf.tgt_name == xf.src_name else (xf.tgt_name + " (from " + xf.src_name + ")")))
+                        print('%10d %10d (%6.2f%%) %7s %s' % (size, tgt_size, size * 100.0 / tgt_size, xf.style, xf.tgt_name if xf.tgt_name == xf.src_name else (xf.tgt_name + ' (from ' + xf.src_name + ')')))
 
             threads = [Thread(target=diff_worker) for _ in range(self.threads)]
             for th in threads:
@@ -753,7 +753,7 @@ class BlockImageDiff(object):
             patches = []
 
         p = 0
-        with open(prefix + ".patch.dat", "wb") as patch_f:
+        with open(prefix + '.patch.dat', 'wb') as patch_f:
             for patch, xf in patches:
                 xf.patch_start = p
                 xf.patch_len = len(patch)
@@ -766,7 +766,7 @@ class BlockImageDiff(object):
         # - we write every block we care about exactly once.
 
         # Start with no blocks having been touched yet.
-        touched = array("B", (0,) * self.tgt.total_blocks)
+        touched = array('B', (0,) * self.tgt.total_blocks)
 
         # Imagine processing the transfers in order.
         for xf in self.transfers:
@@ -798,7 +798,7 @@ class BlockImageDiff(object):
                 assert touched[i] == 1
 
     def ImproveVertexSequence(self):
-        print("Improving vertex order...")
+        print('Improving vertex order...')
 
         # At this point our digraph is acyclic; we reversed any edges that
         # were backwards in the heuristically-generated sequence.  The
@@ -838,7 +838,7 @@ class BlockImageDiff(object):
             xf.order = i
 
     def RemoveBackwardEdges(self):
-        print("Removing backward edges...")
+        print('Removing backward edges...')
         in_order = 0
         out_of_order = 0
         lost_source = 0
@@ -859,17 +859,17 @@ class BlockImageDiff(object):
                     xf.src_ranges = xf.src_ranges.subtract(u.tgt_ranges)
                     xf.intact = False
 
-            if xf.style == "diff" and not xf.src_ranges:
+            if xf.style == 'diff' and not xf.src_ranges:
                 # nothing left to diff from; treat as new data
-                xf.style = "new"
+                xf.style = 'new'
 
             lost = size - xf.src_ranges.size()
             lost_source += lost
 
-        print(("  %d/%d dependencies (%.2f%%) were violated; " "%d source blocks removed.") % (out_of_order, in_order + out_of_order, (out_of_order * 100.0 / (in_order + out_of_order)) if (in_order + out_of_order) else 0.0, lost_source))
+        print(('  %d/%d dependencies (%.2f%%) were violated; ' '%d source blocks removed.') % (out_of_order, in_order + out_of_order, (out_of_order * 100.0 / (in_order + out_of_order)) if (in_order + out_of_order) else 0.0, lost_source))
 
     def ReverseBackwardEdges(self):
-        print("Reversing backward edges...")
+        print('Reversing backward edges...')
         in_order = 0
         out_of_order = 0
         stashes = 0
@@ -901,10 +901,10 @@ class BlockImageDiff(object):
                     xf.goes_after[u] = None  # value doesn't matter
                     u.goes_before[xf] = None
 
-        print(("  %d/%d dependencies (%.2f%%) were violated; " "%d source blocks stashed.") % (out_of_order, in_order + out_of_order, (out_of_order * 100.0 / (in_order + out_of_order)) if (in_order + out_of_order) else 0.0, stash_size))
+        print(('  %d/%d dependencies (%.2f%%) were violated; ' '%d source blocks stashed.') % (out_of_order, in_order + out_of_order, (out_of_order * 100.0 / (in_order + out_of_order)) if (in_order + out_of_order) else 0.0, stash_size))
 
     def FindVertexSequence(self):
-        print("Finding vertex sequence...")
+        print('Finding vertex sequence...')
 
         # This is based on "A Fast & Effective Heuristic for the Feedback
         # Arc Set Problem" by P. Eades, X. Lin, and W.F. Smyth.  Think of
@@ -1014,7 +1014,7 @@ class BlockImageDiff(object):
         self.transfers = new_transfers
 
     def GenerateDigraph(self):
-        print("Generating digraph...")
+        print('Generating digraph...')
 
         # Each item of source_ranges will be:
         #   - None, if that block is not used as a source,
@@ -1053,7 +1053,7 @@ class BlockImageDiff(object):
                 # If the blocks written by A are read by B, then B needs to go before A.
                 i = a.tgt_ranges.intersect(b.src_ranges)
                 if i:
-                    if b.src_name == "__ZERO":
+                    if b.src_name == '__ZERO':
                         # the cost of removing source blocks for the __ZERO domain
                         # is (nearly) zero.
                         size = 0
@@ -1081,7 +1081,7 @@ class BlockImageDiff(object):
             size by 30% volantis, and 20% for angler and bullhead."""
 
             # We care about diff transfers only.
-            if style != "diff" or not split:
+            if style != 'diff' or not split:
                 Transfer(tgt_name, src_name, tgt_ranges, src_ranges, style, by_id)
                 return
 
@@ -1096,8 +1096,8 @@ class BlockImageDiff(object):
                 return
 
             while tgt_ranges.size() > max_blocks_per_transfer and src_ranges.size() > max_blocks_per_transfer:
-                tgt_split_name = "%s-%d" % (tgt_name, pieces)
-                src_split_name = "%s-%d" % (src_name, pieces)
+                tgt_split_name = '%s-%d' % (tgt_name, pieces)
+                src_split_name = '%s-%d' % (src_name, pieces)
                 tgt_first = tgt_ranges.first(max_blocks_per_transfer)
                 src_first = src_ranges.first(max_blocks_per_transfer)
 
@@ -1111,55 +1111,55 @@ class BlockImageDiff(object):
             if tgt_ranges.size() or src_ranges.size():
                 # Must be both non-empty.
                 assert tgt_ranges.size() and src_ranges.size()
-                tgt_split_name = "%s-%d" % (tgt_name, pieces)
-                src_split_name = "%s-%d" % (src_name, pieces)
+                tgt_split_name = '%s-%d' % (tgt_name, pieces)
+                src_split_name = '%s-%d' % (src_name, pieces)
                 Transfer(tgt_split_name, src_split_name, tgt_ranges, src_ranges, style, by_id)
 
         empty = RangeSet()
         for tgt_fn, tgt_ranges in self.tgt.file_map.items():
-            if tgt_fn == "__ZERO":
+            if tgt_fn == '__ZERO':
                 # the special "__ZERO" domain is all the blocks not contained
                 # in any file and that are filled with zeros.  We have a
                 # special transfer style for zero blocks.
-                src_ranges = self.src.file_map.get("__ZERO", empty)
-                AddTransfer(tgt_fn, "__ZERO", tgt_ranges, src_ranges, "zero", self.transfers)
+                src_ranges = self.src.file_map.get('__ZERO', empty)
+                AddTransfer(tgt_fn, '__ZERO', tgt_ranges, src_ranges, 'zero', self.transfers)
                 continue
 
-            elif tgt_fn == "__COPY":
+            elif tgt_fn == '__COPY':
                 # "__COPY" domain includes all the blocks not contained in any
                 # file and that need to be copied unconditionally to the target.
-                AddTransfer(tgt_fn, None, tgt_ranges, empty, "new", self.transfers)
+                AddTransfer(tgt_fn, None, tgt_ranges, empty, 'new', self.transfers)
                 continue
 
             elif tgt_fn in self.src.file_map:
                 # Look for an exact pathname match in the source.
-                AddTransfer(tgt_fn, tgt_fn, tgt_ranges, self.src.file_map[tgt_fn], "diff", self.transfers, self.version >= 3)
+                AddTransfer(tgt_fn, tgt_fn, tgt_ranges, self.src.file_map[tgt_fn], 'diff', self.transfers, self.version >= 3)
                 continue
 
             b = os.path.basename(tgt_fn)
             if b in self.src_basenames:
                 # Look for an exact basename match in the source.
                 src_fn = self.src_basenames[b]
-                AddTransfer(tgt_fn, src_fn, tgt_ranges, self.src.file_map[src_fn], "diff", self.transfers, self.version >= 3)
+                AddTransfer(tgt_fn, src_fn, tgt_ranges, self.src.file_map[src_fn], 'diff', self.transfers, self.version >= 3)
                 continue
 
-            b = sub("[0-9]+", "#", b)
+            b = sub('[0-9]+', '#', b)
             if b in self.src_numpatterns:
                 # Look for a 'number pattern' match (a basename match after
                 # all runs of digits are replaced by "#").  (This is useful
                 # for .so files that contain version numbers in the filename
                 # that get bumped.)
                 src_fn = self.src_numpatterns[b]
-                AddTransfer(tgt_fn, src_fn, tgt_ranges, self.src.file_map[src_fn], "diff", self.transfers, self.version >= 3)
+                AddTransfer(tgt_fn, src_fn, tgt_ranges, self.src.file_map[src_fn], 'diff', self.transfers, self.version >= 3)
                 continue
 
-            AddTransfer(tgt_fn, None, tgt_ranges, empty, "new", self.transfers)
+            AddTransfer(tgt_fn, None, tgt_ranges, empty, 'new', self.transfers)
 
     def AbbreviateSourceNames(self):
         for k in self.src.file_map.keys():
             b = os.path.basename(k)
             self.src_basenames[b] = k
-            b = sub("[0-9]+", "#", b)
+            b = sub('[0-9]+', '#', b)
             self.src_numpatterns[b] = k
 
     @staticmethod

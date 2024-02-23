@@ -32,11 +32,11 @@ class SparseImage(object):
     the form of a string like "0" or "0 1-5 8".
     """
 
-    def __init__(self, simg_fn, file_map_fn=None, clobbered_blocks=None, mode="rb", build_map=True):
+    def __init__(self, simg_fn, file_map_fn=None, clobbered_blocks=None, mode='rb', build_map=True):
         self.simg_f = f = open(simg_fn, mode)
 
         header_bin = f.read(28)
-        header = struct.unpack("<I4H4I", header_bin)
+        header = struct.unpack('<I4H4I', header_bin)
 
         magic = header[0]
         major_version = header[1]
@@ -48,15 +48,15 @@ class SparseImage(object):
         self.total_chunks = total_chunks = header[7]
 
         if magic != 0xED26FF3A:
-            raise ValueError("Magic should be 0xED26FF3A but is 0x%08X" % (magic,))
+            raise ValueError('Magic should be 0xED26FF3A but is 0x%08X' % (magic,))
         if major_version != 1 or minor_version != 0:
-            raise ValueError("I know about version 1.0, but this is version %u.%u" % (major_version, minor_version))
+            raise ValueError('I know about version 1.0, but this is version %u.%u' % (major_version, minor_version))
         if file_hdr_sz != 28:
-            raise ValueError("File header size was expected to be 28, but is %u." % (file_hdr_sz,))
+            raise ValueError('File header size was expected to be 28, but is %u.' % (file_hdr_sz,))
         if chunk_hdr_sz != 12:
-            raise ValueError("Chunk header size was expected to be 12, but is %u." % (chunk_hdr_sz,))
+            raise ValueError('Chunk header size was expected to be 12, but is %u.' % (chunk_hdr_sz,))
 
-        print("Total of %u %u-byte output blocks in %u input chunks." % (total_blks, blk_sz, total_chunks))
+        print('Total of %u %u-byte output blocks in %u input chunks.' % (total_blks, blk_sz, total_chunks))
 
         if not build_map:
             return
@@ -68,7 +68,7 @@ class SparseImage(object):
 
         for i in range(total_chunks):
             header_bin = f.read(12)
-            header = struct.unpack("<2H2I", header_bin)
+            header = struct.unpack('<2H2I', header_bin)
             chunk_type = header[0]
             chunk_sz = header[2]
             total_sz = header[3]
@@ -76,7 +76,7 @@ class SparseImage(object):
 
             if chunk_type == 0xCAC1:
                 if data_sz != (chunk_sz * blk_sz):
-                    raise ValueError("Raw chunk input size (%u) does not match output size (%u)" % (data_sz, chunk_sz * blk_sz))
+                    raise ValueError('Raw chunk input size (%u) does not match output size (%u)' % (data_sz, chunk_sz * blk_sz))
                 else:
                     care_data.append(pos)
                     care_data.append(pos + chunk_sz)
@@ -98,10 +98,10 @@ class SparseImage(object):
                     pos += chunk_sz
 
             elif chunk_type == 0xCAC4:
-                raise ValueError("CRC32 chunks are not supported")
+                raise ValueError('CRC32 chunks are not supported')
 
             else:
-                raise ValueError("Unknown chunk type 0x%04X not supported" % (chunk_type,))
+                raise ValueError('Unknown chunk type 0x%04X not supported' % (chunk_type,))
 
         self.care_map = rangelib.RangeSet(care_data)
         self.offset_index = [i[0] for i in offset_map]
@@ -120,21 +120,21 @@ class SparseImage(object):
         if file_map_fn:
             self.LoadFileBlockMap(file_map_fn, self.clobbered_blocks)
         else:
-            self.file_map = {"__DATA": self.care_map}
+            self.file_map = {'__DATA': self.care_map}
 
     def AppendFillChunk(self, data, blocks):
         f = self.simg_f
 
         # Append a fill chunk
         f.seek(0, os.SEEK_END)
-        f.write(struct.pack("<2H3I", 0xCAC2, 0, blocks, 16, data))
+        f.write(struct.pack('<2H3I', 0xCAC2, 0, blocks, 16, data))
 
         # Update the sparse header
         self.total_blocks += blocks
         self.total_chunks += 1
 
         f.seek(16, os.SEEK_SET)
-        f.write(struct.pack("<2I", self.total_blocks, self.total_chunks))
+        f.write(struct.pack('<2I', self.total_blocks, self.total_chunks))
 
     def ReadRangeSet(self, ranges):
         return [d for d in self._GetRangeData(ranges)]
@@ -219,9 +219,9 @@ class SparseImage(object):
         zero_blocks = []
         nonzero_blocks = []
         if sys.version_info[:2] >= (3, 0):
-            reference = bytes("\0" * self.blocksize, encoding="UTF-8")
+            reference = bytes('\0' * self.blocksize, encoding='UTF-8')
         else:
-            reference = "\0" * self.blocksize
+            reference = '\0' * self.blocksize
 
         # Workaround for bug 23227672. For squashfs, we don't have a system.map. So
         # the whole system image will be treated as a single file. But for some
@@ -267,14 +267,14 @@ class SparseImage(object):
         assert zero_blocks or nonzero_groups or clobbered_blocks
 
         if zero_blocks:
-            out["__ZERO"] = rangelib.RangeSet(data=zero_blocks)
+            out['__ZERO'] = rangelib.RangeSet(data=zero_blocks)
         if nonzero_groups:
             for i, blocks in enumerate(nonzero_groups):
-                out["__NONZERO-%d" % i] = rangelib.RangeSet(data=blocks)
+                out['__NONZERO-%d' % i] = rangelib.RangeSet(data=blocks)
         if clobbered_blocks:
-            out["__COPY"] = clobbered_blocks
+            out['__COPY'] = clobbered_blocks
 
     def ResetFileMap(self):
         """Throw away the file map and treat the entire image as
         undifferentiated data."""
-        self.file_map = {"__DATA": self.care_map}
+        self.file_map = {'__DATA': self.care_map}
