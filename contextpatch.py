@@ -5,14 +5,14 @@ from difflib import SequenceMatcher
 from re import escape
 
 fix_permission = {
-    'android.hardware.wifi': 'u:object_r:hal_wifi_default_exec:s0',
-    'bin/idmap': 'u:object_r:idmap_exec:s0',
-    'bin/fsck': 'u:object_r:fsck_exec:s0',
-    'bin/e2fsck': 'u:object_r:fsck_exec:s0',
-    'bin/logcat': 'u:object_r:logcat_exec:s0',
-    'system/bin': 'u:object_r:system_file:s0',
-    '/system/bin/init': 'u:object_r:init_exec:s0',
-    r'/lost\+found': 'u:object_r:rootfs:s0',
+    "android.hardware.wifi": "u:object_r:hal_wifi_default_exec:s0",
+    "bin/idmap": "u:object_r:idmap_exec:s0",
+    "bin/fsck": "u:object_r:fsck_exec:s0",
+    "bin/e2fsck": "u:object_r:fsck_exec:s0",
+    "bin/logcat": "u:object_r:logcat_exec:s0",
+    "system/bin": "u:object_r:system_file:s0",
+    "/system/bin/init": "u:object_r:init_exec:s0",
+    r"/lost\+found": "u:object_r:rootfs:s0"
 }
 
 
@@ -41,7 +41,7 @@ def scan_dir(folder) -> list:  # 读取解包的目录，返回一个字典
 
 
 def str_to_selinux(string: str):
-    return escape(string).replace('\\-', '-')
+    return escape(string).replace('\\-', '-').replace(r'\@', '@').replace('@', r'\@')
 
 
 def context_patch(fs_file, dir_path) -> tuple:  # 接收两个字典对比
