@@ -684,7 +684,8 @@ class Inode:
 
     @property
     def mode_str(self):
-        special_flag = lambda letter, execute, special: {(False, False): '-', (False, True): letter.upper(), (True, False): 'x', (True, True): letter.lower()}[(execute, special)]
+        def special_flag(letter, execute, special):
+            return {(False, False): '-', (False, True): letter.upper(), (True, False): 'x', (True, True): letter.lower()}[execute, special]
 
         try:
             if (self.volume.superblock.s_feature_incompat & ext4_superblock.INCOMPAT_FILETYPE) == 0:
@@ -720,7 +721,8 @@ class Inode:
     def open_dir(self, decode_name=None):
         # Parse args
         if decode_name is None:
-            decode_name = lambda raw: raw.decode('utf8')
+            def decode_name(raw):
+                return raw.decode('utf8')
 
         if not self.volume.ignore_flags and not self.is_dir:
             raise Ext4Error(f'Inode ({self.inode_idx:d}) is not a directory.')
