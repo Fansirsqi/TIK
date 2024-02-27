@@ -640,22 +640,16 @@ class Inode:
     def get_inode(self, *relative_path, decode_name=None):
         if not self.is_dir:
             raise Ext4Error(f'Inode {self.inode_idx:d} is not a directory.')
-
         current_inode = self
-
         for i, part in enumerate(relative_path):
             if not self.volume.ignore_flags and not current_inode.is_dir:
                 current_path = '/'.join(relative_path[:i])
-                raise Ext4Error(f'{current_path!r:s} (Inode {inode_idx:d}) is not a directory.')
-
+                raise Ext4Error(f'{current_path!r:s} (Inode {self.inode_idx:d}) is not a directory.')
             file_name, inode_idx, file_type = next(filter(lambda entry: entry[0] == part, current_inode.open_dir(decode_name)), (None, None, None))
-
             if inode_idx is None:
                 current_path = '/'.join(relative_path[:i])
                 raise FileNotFoundError(f'{part!r:s} not found in {current_path!r:s} (Inode {current_inode.inode_idx:d}).')
-
             current_inode = current_inode.volume.get_inode(inode_idx, file_type)
-
         return current_inode
 
     @property
